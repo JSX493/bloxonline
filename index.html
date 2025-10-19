@@ -113,13 +113,13 @@ const DISCORD_NUMBER = "https://discord.gg/x4H2BC4J";
 const ADMIN_PASSWORD = "admin123";
 
 /* Produtos iniciais (ordem correta) */
-const initialProducts = 
+const initialProducts = [ // Adicione o colchete de abertura aqui
   { sku:"esok", nome:"Esok Sekolah", desc:"normal", preco:30.00, img:"esok.png", tipo:"normal" },
   { sku:"Graipuss", nome:"Graipuss Medussi", desc:"com taco", preco:15.00, img:"Graipuss.webp", tipo:"normal" },
   { sku:"metodo", nome:"Método Moreira", desc:"Modificado", preco:10.00, img:"metodo-moreira.jpg", tipo:"metodo" },
   { sku:"Los Combionasionas", nome:"Los Combionasionas", desc:"normal", preco:25.50, img:"Stop_taking_my_chips_im_just_a_baybeh.webp", tipo:"normal" },
   { sku:"la grande", nome:"Extinct la grande", desc:"normal", preco:45.00, img:"c0c8f20b-202c-46a7-81ab-c41d827900a2-500x500-UcFOBn0RxhxgDW4xcG6IOkXUkyZf0ardEgxXNGa4.webp", tipo:"normal" }
-];
+]; // E o colchete de fechamento aqui
 
 /* ====== Estado persistido (localStorage) ====== */
 function loadState(){
@@ -421,4 +421,5 @@ document.addEventListener('keydown', (e) => {
 </body>
 
 </html>
+
 
