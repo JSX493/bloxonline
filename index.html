@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BLOX ONLINE</title>
+</head>
+<body>
+  <header>
+    <div class="brand">
+      <h1>Blox Online</h1>
+    </div>
+<style>
+  :root{
+    --bg:#f6f6f6; --card:#fff; --dark:#111;
+    --green:#25D366; --accent:#000; --danger:#ef4444;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:#111;min-height:100vh}
+  header{background:var(--accent);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:30}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand h1{margin:0;font-size:20px;color:#fff}
+  .top-controls{display:flex;gap:8px;align-items:center}
+  .btn{background:var(--accent);color:#fff;border:none;padding:10px 12px;border-radius:8px;cursor:pointer;font-weight:700}
+  .btn:hover{opacity:.95}
+  .btn-green{background:var(--green)}
+  .container{max-width:1100px;margin:18px auto;padding:0 12px}
+  .notice{background:#fff3f3;border-left:6px solid var(--danger);padding:10px;border-radius:8px;margin-bottom:14px;font-weight:700;color:#900;text-align:center}
+  .hero{display:flex;gap:16px;background:var(--card);padding:14px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.04);align-items:center}
+  .hero img{width:420px;height:260px;object-fit:cover;border-radius:8px}
+  .hero-info{flex:1;text-align:left}
+  .vitrine{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:18px}
+  .produto{background:var(--card);padding:12px;border-radius:12px;box-shadow:0 6px 18px rgba(0,0,0,.04);text-align:center;position:relative;display:flex;flex-direction:column;gap:8px}
+  .produto img{width:100%;height:160px;object-fit:cover;border-radius:8px}
+  .produto h3{margin:0;font-size:18px}
+  .produto p{margin:0;color:#444}
+  .tag-out{display:none;position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);background:rgba(0,0,0,.85);color:#fff;padding:8px 10px;border-radius:8px;font-weight:700}
+  .produto.fora-estoque{opacity:.45;pointer-events:none;filter:grayscale(80%)}
+  .produto.fora-estoque .tag-out{display:block}
+  #carrinho{background:var(--card);padding:12px;border-radius:12px;margin-top:18px;box-shadow:0 6px 18px rgba(0,0,0,.04)}
+  #itens .linha{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #eee}
+  #itens img{width:90px;border-radius:8px}
+  .remover{background:var(--danger);color:#fff;border:none;padding:6px 8px;border-radius:6px;cursor:pointer}
+  #pix-area{display:none;background:var(--card);padding:12px;border-radius:12px;margin-top:18px;box-shadow:0 6px 18px rgba(0,0,0,.04);text-align:center}
+  .pix-key{font-weight:800;font-size:20px;word-break:break-word;margin:10px 0}
+  .whatsapp-link{display:inline-block;background:var(--green);color:#fff;padding:10px 14px;border-radius:8px;text-decoration:none;margin-top:10px}
+  #admin-panel{display:none;background:var(--card);padding:12px;border-radius:12px;margin-top:12px;box-shadow:0 6px 18px rgba(0,0,0,.04)}
+  .admin-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+  .admin-input{padding:8px;border-radius:6px;border:1px solid #ccc}
+  .small{font-size:13px;color:#666}
+  footer{text-align:center;color:#666;margin:26px 0}
+  @media(max-width:900px){ .hero{flex-direction:column} .hero img{width:100%;height:220px} .hero-info{text-align:center} }
+</style>
+    <div class="top-controls">
+      </div>
+  </header>
+
+  <div class="container">
+    <div class="notice">⚠️ Antes de comprar, entre em contato pelo Discord comprasbloxonline e envie o comprovante.</div>
+
+    <div id="hero-container" class="hero" style="display:none"></div>
+
+    <div id="vitrine" class="vitrine"></div>
+
+    <div id="carrinho">
+      <h3>🛒 Carrinho</h3>
+      <div id="itens"><p class="small">Carrinho vazio</p></div>
+      <div style="margin-top:8px">
+        <button class="btn" onclick="pagarPix()">Pagar com Pix</button>
+      </div>
+    </div>
+
+    <div id="pix-area"></div>
+
+    <div id="admin-panel">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span class="small">Modo admin</span>
+        </div>
+
+        <div style="display:flex;gap:8px;align-items:center">
+          <button class="btn" onclick="logoutAdmin()">Sair do Admin</button>
+        </div>
+      </div>
+
+      <hr>
+
+      <h4>Adicionar novo produto</h4>
+      <div class="admin-row">
+        <input id="novo-nome" class="admin-input" placeholder="Nome do produto">
+        <input id="novo-desc" class="admin-input" placeholder="Descrição (opcional)">
+        <input id="novo-preco" class="admin-input" placeholder="Preço (ex: 35.00)">
+        <select id="novo-tipo" class="admin-input">
+          <option value="normal">Normal (sai do estoque ao comprar)</option>
+          <option value="metodo">Método (não sai do estoque)</option>
+        </select>
+        <input id="novo-imagem" type="file" accept="image/*" class="admin-input">
+        <button class="btn btn-green" onclick="adicionarProdutoAdmin()">➕ Adicionar (salvar)</button>
+      </div>
+
+      <hr>
+
+      <h4>Gerenciar produtos</h4>
+      <div id="admin-list" class="small"></div>
+    </div>
+
+    <footer>© 2025 LaVacaStore</footer>
+  </div>
+
+<script>
+/* ====== CONFIG ====== */
+const DISCORD_NUMBER = "5551983077917";
+const ADMIN_PASSWORD = "admin123";
+
+/* Produtos iniciais (ordem correta) */
+const initialProducts = [
+  { sku:"67", nome:"67", desc:"39.3M por segundo", preco:40.00, img:"imagens/67.jpg", tipo:"normal" },
+  { sku:"esok", nome:"Esok Sekolah", desc:"30M por segundo", preco:35.00, img:"imagens/esok.png", tipo:"normal" },
+  { sku:"perrito1", nome:"Perrito Burrito", desc:"15.5M por segundo", preco:17.00, img:"imagens/perrito1.jpg", tipo:"normal" },
+  { sku:"perrito2", nome:"Perrito Burrito (18.5M)", desc:"18.5M por segundo", preco:20.00, img:"imagens/perrito2.jpg", tipo:"normal" },
+  { sku:"metodo", nome:"Método Moreira", desc:"Versão básica", preco:5.00, img:"imagens/metodo.jpg", tipo:"metodo" },
+  { sku:"metodo_plus", nome:"Método Moreira (Plus)", desc:"Versão Plus", preco:7.50, img:"imagens/metodo_plus.jpg", tipo:"metodo" },
+  { sku:"metodo_premium", nome:"Método Moreira (Premium Plus)", desc:"Versão Premium", preco:10.00, img:"imagens/metodo_premium.jpg", tipo:"metodo" }
+];
+
+/* ====== Estado persistido (localStorage) ====== */
+function loadState(){
+  const p = localStorage.getItem("lv_produtos");
+  const d = localStorage.getItem("lv_disponibilidade");
+  let produtos = p ? JSON.parse(p) : null;
+  let disponibilidade = d ? JSON.parse(d) : null;
+  if(!produtos){ produtos = initialProducts.slice(); localStorage.setItem("lv_produtos", JSON.stringify(produtos)); }
+  if(!disponibilidade){
+    disponibilidade = {};
+    produtos.forEach(x => disponibilidade[x.sku] = true);
+    localStorage.setItem("lv_disponibilidade", JSON.stringify(disponibilidade));
+  }
+  return { produtos, disponibilidade };
+}
+function saveState(produtos, disponibilidade){
+  localStorage.setItem("lv_produtos", JSON.stringify(produtos));
+  localStorage.setItem("lv_disponibilidade", JSON.stringify(disponibilidade));
+}
+
+/* carregar */
+let { produtos, disponibilidade } = loadState();
+
+/* carrinho em memória */
+let carrinho = [];
+
+/* elementos */
+const vitrineEl = document.getElementById("vitrine");
+const heroEl = document.getElementById("hero-container");
+const itensEl = document.getElementById("itens");
+const adminPanel = document.getElementById("admin-panel");
+const adminList = document.getElementById("admin-list");
+const adminBtn = document.getElementById("admin-btn"); // Remova esta linha se for remover a referência ao botão
+
+/* ====== Render ====== */
+function criarCardProduto(p){
+  const div = document.createElement("div");
+  div.className = "produto";
+  div.dataset.sku = p.sku;
+  if(!disponibilidade[p.sku]) div.classList.add("fora-estoque");
+
+  const img = document.createElement("img");
+  img.src = p.img;
+  img.alt = p.nome;
+  img.onerror = ()=>{ img.src = "data:image/svg+xml;utf8,"+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="400" height="300"><rect width="100%" height="100%" fill="#ddd"/><text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" fill="#666">Imagem não disponível</text></svg>'); };
+
+  const tag = document.createElement("span");
+  tag.className = "tag-out";
+  tag.textContent = "🚫 Fora de estoque";
+
+  const h3 = document.createElement("h3");
+  h3.textContent = p.nome;
+
+  const pdesc = document.createElement("p");
+  pdesc.textContent = p.desc;
+
+  const price = document.createElement("p");
+  price.textContent = "R$ " + Number(p.preco).toFixed(2);
+
+  const btn = document.createElement("button");
+  btn.textContent = "Adicionar ao carrinho";
+  btn.onclick = ()=> adicionarAoCarrinho(p.sku);
+
+  div.appendChild(img);
+  div.appendChild(tag);
+  div.appendChild(h3);
+  div.appendChild(pdesc);
+  div.appendChild(price);
+  div.appendChild(btn);
+
+  return div;
+}
+
+function renderHero(){
+  const p = produtos[0];
+  if(!p){ heroEl.style.display = "none"; return; }
+  heroEl.style.display = "flex";
+  heroEl.innerHTML = `
+    <img src="${p.img}" alt="${p.nome}">
+    <div class="hero-info">
+      <h2>${p.nome}</h2>
+      <p>${p.desc}</p>
+      <p style="font-weight:800">R$ ${Number(p.preco).toFixed(2)}</p>
+      <div style="margin-top:8px">
+        <button class="btn" onclick="adicionarAoCarrinho('${p.sku}')">Adicionar ao carrinho</button>
+        <button class="btn btn-green" onclick="comprarDestaque('${p.sku}')">Comprar agora</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderVitrine(){
+  vitrineEl.innerHTML = "";
+  produtos.forEach(p => vitrineEl.appendChild(criarCardProduto(p)));
+}
+
+/* ===== Carrinho ===== */
+function adicionarAoCarrinho(sku){
+  if(!disponibilidade[sku]) { alert("Produto indisponível."); return; }
+  const p = produtos.find(x=>x.sku===sku);
+  carrinho.push({ sku:p.sku, nome:p.nome, img:p.img, desc:p.desc, preco:p.preco, tipo:p.tipo });
+  renderCarrinho();
+}
+
+function renderCarrinho(){
+  itensEl.innerHTML = "";
+  if(carrinho.length === 0){ itensEl.innerHTML = "<p class='small'>Carrinho vazio</p>"; return; }
+  carrinho.forEach((it, idx)=>{
+    const linha = document.createElement("div");
+    linha.className = "linha";
+    linha.innerHTML = `
+      <img src="${it.img}" alt="${it.nome}">
+      <div style="flex:1;text-align:left"><strong>${it.nome}</strong><div style="font-size:13px;color:#666">${it.desc} • R$ ${Number(it.preco).toFixed(2)}</div></div>
+      <div><button class="remover" onclick="removerDoCarrinho(${idx})">Remover</button></div>
+    `;
+    itensEl.appendChild(linha);
+  });
+}
+
+function removerDoCarrinho(i){ carrinho.splice(i,1); renderCarrinho(); }
+
+function comprarDestaque(sku){
+  const exists = carrinho.some(c=>c.sku===sku);
+  if(!exists) adicionarAoCarrinho(sku);
+  pagarPix();
+}
+
+/* ====== Pagamento (PIX) ====== */
+function pagarPix(){
+  if(carrinho.length === 0){ alert("Adicione pelo menos um produto antes de pagar."); return; }
+  pixArea.style.display = "block";
+  const produtosComprados = [...new Set(carrinho.map(it=>it.nome))].join(", ");
+  pixArea.innerHTML = `
+    <p>💬 Para seguir com o pagamendo, chame o moderador no discord:</p>
+    <a class="Discord-link" href="https://discord.gg/x4H2BC4J" target="_blank">📲 Enviar comprovante no Discord</a>
+    <div style="margin-top:12px">
+      <button class="btn" onclick="confirmarPagamento()">Confirmar pagamento</button>
+      <button class="btn btn-danger" style="margin-left:8px" onclick="cancelarPagamento()">Cancelar pagamento</button>
+    </div>
+  `;
+}
+
+function confirmarPagamento(){
+  const skusComprados = [...new Set(carrinho.map(it=>it.sku))];
+  skusComprados.forEach(sku=>{
+    const prod = produtos.find(p=>p.sku===sku);
+    if(prod && prod.tipo !== "metodo"){
+      disponibilidade[sku] = false;
+    }
+  });
+  saveState(produtos, disponibilidade);
+  pixArea.innerHTML = "<h3>✅ Pedido registrado. Envie o comprovante no Discord para finalizar o atendimento.</h3>";
+  carrinho = [];
+  renderCarrinho();
+  renderVitrine();
+}
+
+function cancelarPagamento(){ pixArea.style.display = "none"; pixArea.innerHTML = ""; }
+
+/* ====== ADMIN (somente após senha correta) ====== */
+let isAdmin = false;
+
+function openAdmin(){
+  // pede a senha (prompt) e só mostra o painel se estiver correta
+  const senha = prompt("Digite a senha do admin:");
+  if(senha === ADMIN_PASSWORD){
+    isAdmin = true;
+    adminPanel.style.display = "block";
+    renderAdminList();
+    alert("Modo admin ativado.");
+  } else {
+    alert("Senha incorreta.");
+  }
+}
+
+function logoutAdmin(){
+  isAdmin = false;
+  adminPanel.style.display = "none";
+  alert("Você saiu do modo admin.");
+}
+
+function adicionarProdutoAdmin(){
+  if(!isAdmin){ alert("Somente admin pode adicionar produtos."); return; }
+  const nome = document.getElementById("novo-nome").value.trim();
+  const desc = document.getElementById("novo-desc").value.trim();
+  const precoStr = document.getElementById("novo-preco").value.trim();
+  const tipo = document.getElementById("novo-tipo").value;
+  const fileInput = document.getElementById("novo-imagem");
+  if(!nome || !precoStr || !fileInput.files.length){ alert("Preencha nome, preço e escolha uma imagem."); return; }
+  const preco = parseFloat(precoStr.replace(",","."));
+  if(isNaN(preco)){ alert("Preço inválido."); return; }
+  const file = fileInput.files[0];
+  const reader = new FileReader();
+  reader.onload = function(e){
+    const dataUrl = e.target.result;
+    const sku = 'custom-' + Date.now();
+    const novo = { sku, nome, desc: desc || "", preco: preco, img: dataUrl, tipo: tipo };
+    produtos.push(novo);
+    disponibilidade[sku] = true;
+    saveState(produtos, disponibilidade);
+    renderVitrine();
+    renderAdminList();
+    document.getElementById("novo-nome").value = "";
+    document.getElementById("novo-desc").value = "";
+    document.getElementById("novo-preco").value = "";
+    document.getElementById("novo-imagem").value = "";
+    alert("✅ Produto adicionado (permanece após fechar).");
+  };
+  reader.readAsDataURL(file);
+}
+
+/* admin list e ações */
+function renderAdminList(){
+  adminList.innerHTML = "";
+  produtos.forEach(p=>{
+    const div = document.createElement("div");
+    div.style.display = "flex";
+    div.style.alignItems = "center";
+    div.style.justifyContent = "space-between";
+    div.style.marginBottom = "10px";
+    div.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center;">
+        <img src="${p.img}" style="width:70px;height:48px;object-fit:cover;border-radius:6px">
+        <div>
+          <strong>${p.nome}</strong><br>
+          <span class="small">R$ ${Number(p.preco).toFixed(2)} • ${p.tipo}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        ${disponibilidade[p.sku] ? `<button class="btn" onclick="removerEstoque('${p.sku}')">Remover do estoque</button>` 
+        : `<button class="btn btn-green" onclick="ativarEstoque('${p.sku}')">Reativar</button>`}
+        <button class="btn" style="background:#666" onclick="excluirProduto('${p.sku}')">Excluir</button>
+      </div>
+    `;
+    adminList.appendChild(div);
+  });
+}
+
+function removerEstoque(sku){
+  if(!isAdmin){ alert("Somente admin pode remover do estoque."); return; }
+  if(!confirm("Remover este produto do estoque?")) return;
+  disponibilidade[sku] = false;
+  saveState(produtos, disponibilidade);
+  renderVitrine();
+  renderAdminList();
+}
+
+function ativarEstoque(sku){
+  if(!isAdmin){ alert("Somente admin pode reativar."); return; }
+  disponibilidade[sku] = true;
+  saveState(produtos, disponibilidade);
+  renderVitrine();
+  renderAdminList();
+}
+
+function excluirProduto(sku){
+  if(!isAdmin){ alert("Somente admin pode excluir."); return; }
+  if(!confirm("Excluir este produto permanentemente?")) return;
+  produtos = produtos.filter(p=>p.sku !== sku);
+  delete disponibilidade[sku];
+  saveState(produtos, disponibilidade);
+  renderVitrine();
+  renderAdminList();
+}
+
+/* ====== Persistência e inicialização ====== */
+function saveState(produtos, disponibilidade){
+  localStorage.setItem("lv_produtos", JSON.stringify(produtos));
+  localStorage.setItem("lv_disponibilidade", JSON.stringify(disponibilidade));
+}
+
+renderHero();
+renderVitrine();
+renderCarrinho();
+
+/* Expor funções para botões inline */
+window.adicionarAoCarrinho = adicionarAoCarrinho;
+window.comprarDestaque = comprarDestaque;
+window.pagarPix = pagarPix;
+window.confirmarPagamento = confirmarPagamento;
+window.cancelarPagamento = cancelarPagamento;
+window.openAdmin = openAdmin;
+window.logoutAdmin = logoutAdmin;
+window.adicionarProdutoAdmin = adicionarProdutoAdmin;
+window.removerEstoque = removerEstoque;
+window.ativarEstoque = ativarEstoque;
+window.excluirProduto = excluirProduto;
+
+/* Novo event listener para o atalho Alt + F1 */
+document.addEventListener('keydown', (e) => {
+    // Verifica se a tecla Alt está pressionada (e.altKey) e a tecla F1 (e.key === 'F1')
+    if (e.altKey && e.key === 'F1') {
+        // Previne a ação padrão do navegador (se houver alguma)
+        e.preventDefault(); 
+        openAdmin();
+    }
+});
+</script>
+</body>
+</html>
